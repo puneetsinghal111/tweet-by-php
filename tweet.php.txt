@@ -1,0 +1,53 @@
+<?php
+function tweetThis($strUsername = '', $strPassword = '', $strMessage = '') {
+    if (function_exists('curl_init')) {    
+        $twitterUsername = trim($strUsername);
+        $twitterPassword = trim($strPassword);
+         
+    if(strlen($strMessage) > 140) {
+        $strMessage = substr($strMessage, 0, 140);
+    }
+         
+    $twitterStatus = htmlentities(trim(strip_tags($strMessage)));
+ 
+    if (!empty($twitterUsername) && !empty($twitterPassword) && !empty($twitterStatus)) {
+        $strTweetUrl = 'http://www.twitter.com/statuses/update.xml';
+ 
+        $objCurlHandle = curl_init();
+        curl_setopt($objCurlHandle, CURLOPT_URL, "$strTweetUrl");
+        curl_setopt($objCurlHandle, CURLOPT_CONNECTTIMEOUT, 2);
+        curl_setopt($objCurlHandle, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($objCurlHandle, CURLOPT_POST, 1);
+        curl_setopt($objCurlHandle, CURLOPT_POSTFIELDS, "status=$twitterStatus");
+        curl_setopt($objCurlHandle, CURLOPT_USERPWD, "$twitterUsername:$twitterPassword");
+ 
+            $result = curl_exec($objCurlHandle);
+            $arrResult = curl_getinfo($objCurlHandle);
+ 
+            if ($arrResult['http_code'] == 200) {
+                return 'Your Tweet has been posted';
+            }
+            else {
+                return 'Could not post your Tweet to Twitter.';
+            }
+ 
+        curl_close($objCurlHandle);
+    }
+    else {
+        return 'Missing required information to submit your Tweet.';
+    }
+    }
+    else {
+    return 'Curl Extension is not installed.';
+    }
+}
+?>
+
+
+
+<?php
+    // Send a Tweet to your Twitter account.
+$result = tweetThis('my_user_name', 'my_password', 'my_tweet_message');
+
+echo $result;
+?>
